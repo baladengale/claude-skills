@@ -29,7 +29,6 @@ jobs:
           PLATFORMS=(
             "linux   amd64"
             "linux   arm64"
-            "darwin  amd64"
             "darwin  arm64"
             "windows amd64"
           )
@@ -65,12 +64,10 @@ jobs:
             |--------|----------|
             | `market-overview-linux-amd64` | Linux x86-64 |
             | `market-overview-linux-arm64` | Linux ARM64 (Raspberry Pi, ARM servers) |
-            | `market-overview-darwin-amd64` | macOS Intel |
             | `market-overview-darwin-arm64` | macOS Apple Silicon |
             | `market-overview-windows-amd64.exe` | Windows x86-64 |
             | `tech-intel-linux-amd64` | Linux x86-64 |
             | `tech-intel-linux-arm64` | Linux ARM64 |
-            | `tech-intel-darwin-amd64` | macOS Intel |
             | `tech-intel-darwin-arm64` | macOS Apple Silicon |
             | `tech-intel-windows-amd64.exe` | Windows x86-64 |
 
