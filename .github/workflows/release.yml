@@ -1,0 +1,84 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Build all binaries
+        run: |
+          mkdir -p dist
+
+          PLATFORMS=(
+            "linux   amd64"
+            "linux   arm64"
+            "darwin  amd64"
+            "darwin  arm64"
+            "windows amd64"
+          )
+
+          for SKILL in market-overview tech-intel; do
+            cd skills/$SKILL
+            for PLATFORM in "${PLATFORMS[@]}"; do
+              GOOS=$(echo $PLATFORM | awk '{print $1}')
+              GOARCH=$(echo $PLATFORM | awk '{print $2}')
+              EXT=""
+              [ "$GOOS" = "windows" ] && EXT=".exe"
+              OUT="../../dist/${SKILL}-${GOOS}-${GOARCH}${EXT}"
+              echo "Building $OUT ..."
+              GOOS=$GOOS GOARCH=$GOARCH go build -ldflags="-s -w" -o "$OUT" .
+            done
+            cd ../..
+          done
+
+          echo "--- Built artifacts ---"
+          ls -lh dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+          body: |
+            ## Binaries
+
+            Download the binary for your platform and place a `.env` file in the same directory before running.
+
+            | Binary | Platform |
+            |--------|----------|
+            | `market-overview-linux-amd64` | Linux x86-64 |
+            | `market-overview-linux-arm64` | Linux ARM64 (Raspberry Pi, ARM servers) |
+            | `market-overview-darwin-amd64` | macOS Intel |
+            | `market-overview-darwin-arm64` | macOS Apple Silicon |
+            | `market-overview-windows-amd64.exe` | Windows x86-64 |
+            | `tech-intel-linux-amd64` | Linux x86-64 |
+            | `tech-intel-linux-arm64` | Linux ARM64 |
+            | `tech-intel-darwin-amd64` | macOS Intel |
+            | `tech-intel-darwin-arm64` | macOS Apple Silicon |
+            | `tech-intel-windows-amd64.exe` | Windows x86-64 |
+
+            ## .env setup
+
+            ```
+            GMAIL_USER=you@gmail.com
+            GMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
+            MARKET_RECIPIENTS=you@gmail.com
+            NEWSLETTER_RECIPIENTS=you@gmail.com
+            ```
