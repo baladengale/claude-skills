@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{.Title}}</title>
+<style>
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #2d3436; }
+  .container { max-width: 680px; margin: 0 auto; background: #ffffff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
+  .header { background: linear-gradient(135deg, #0c2461 0%, #1e3799 50%, #0a3d62 100%); color: white; padding: 32px 28px; text-align: center; }
+  .header h1 { margin: 0 0 8px 0; font-size: 26px; letter-spacing: -0.5px; }
+  .header .date { font-size: 14px; opacity: 0.85; }
+  .content { padding: 24px 28px; }
+  .article { border-bottom: 1px solid #eee; padding: 18px 0; }
+  .article:last-child { border-bottom: none; }
+  .article-rank { display: inline-block; background: #0c2461; color: white; width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; font-size: 13px; font-weight: bold; margin-right: 10px; vertical-align: top; }
+  .article-title { font-size: 16px; font-weight: 600; }
+  .article-title a { color: #0c2461; text-decoration: none; }
+  .article-title a:hover { text-decoration: underline; }
+  .article-meta { font-size: 12px; color: #636e72; margin-top: 4px; }
+  .article-summary { font-size: 14px; color: #4a4a4a; margin-top: 8px; line-height: 1.5; }
+  .article-keywords { margin-top: 6px; }
+  .keyword-tag { display: inline-block; background: #dfe6e9; color: #2d3436; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-right: 4px; margin-bottom: 2px; }
+  .score-badge { display: inline-block; background: #00b894; color: white; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-left: 6px; }
+  .read-more { display: inline-block; margin-top: 8px; font-size: 13px; color: #1e3799; text-decoration: none; font-weight: 500; }
+  .read-more:hover { text-decoration: underline; }
+  .footer { background: #f8f9fa; padding: 20px 28px; font-size: 12px; color: #636e72; border-top: 1px solid #eee; }
+  .footer .sources { margin-top: 8px; }
+  .empty-state { text-align: center; padding: 40px 20px; color: #636e72; }
+  .empty-state h2 { font-size: 18px; color: #2d3436; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>{{.Title}}</h1>
+    <div class="date">{{.Date}} (SGT)</div>
+  </div>
+  <div class="content">
+    {{if .Articles}}
+    {{range $i, $a := .Articles}}
+    <div class="article">
+      <div>
+        <span class="article-rank">{{add $i 1}}</span>
+        <span class="article-title"><a href="{{$a.Link}}">{{$a.Title}}</a></span>
+        {{if gt $a.Score 0}}<span class="score-badge">Score: {{$a.Score}}</span>{{end}}
+      </div>
+      <div class="article-meta">{{$a.Source}} &middot; {{formatTime $a.PublishedAt}}</div>
+      {{if $a.Summary}}<div class="article-summary">{{$a.Summary}}</div>{{end}}
+      {{if $a.Keywords}}
+      <div class="article-keywords">
+        {{range $a.Keywords}}<span class="keyword-tag">{{.}}</span>{{end}}
+      </div>
+      {{end}}
+      <a href="{{$a.Link}}" class="read-more">Read More &rarr;</a>
+    </div>
+    {{end}}
+    {{else}}
+    <div class="empty-state">
+      <h2>No articles found</h2>
+      <p>No relevant articles were found in the last 24 hours. Check back later.</p>
+    </div>
+    {{end}}
+  </div>
+  <div class="footer">
+    <strong>Sources:</strong>
+    <div class="sources">{{range .Sources}}{{.}} &bull; {{end}}</div>
+    <div style="margin-top: 10px;">Generated: {{.Generated}} | Total articles scanned: {{.TotalFound}}</div>
+    <div style="margin-top: 6px; font-style: italic;">Powered by Claude Skills - Tech Intel</div>
+  </div>
+</div>
+</body>
+</html>
