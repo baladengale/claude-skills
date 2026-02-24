@@ -5,37 +5,61 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{.Title}}</title>
 <style>
+  /* ── Base ──────────────────────────────────────────────────────────── */
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; color: #2d3436; }
-  .container { max-width: 720px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
+  .container { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
   .header { background: linear-gradient(135deg, #0c2461 0%, #1e3799 50%, #0a3d62 100%); color: #fff; padding: 32px 28px; text-align: center; }
   .header h1 { margin: 0 0 4px 0; font-size: 24px; letter-spacing: -0.5px; }
   .header .subtitle { font-size: 14px; opacity: 0.85; }
+
+  /* ── Section header ─────────────────────────────────────────────────── */
   .section-title { background: #f8f9fa; padding: 12px 20px; font-size: 15px; font-weight: 700; color: #0c2461; border-bottom: 2px solid #1e3799; border-top: 1px solid #eee; }
+
+  /* ── Market table ────────────────────────────────────────────────────── */
   .market-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .market-table th { background: #f0f2f5; padding: 8px 10px; text-align: center; font-weight: 600; color: #636e72; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .market-table th { background: #f0f2f5; padding: 7px 8px; text-align: center; font-weight: 600; color: #636e72; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
   .market-table th:first-child { text-align: left; }
-  .market-table td { padding: 8px 10px; border-bottom: 1px solid #f0f2f5; text-align: center; font-size: 13px; }
-  .market-table td:first-child { text-align: left; font-weight: 600; color: #2d3436; }
+  .market-table td { padding: 7px 8px; border-bottom: 1px solid #f0f2f5; text-align: center; font-size: 12px; white-space: nowrap; }
+  .market-table td:first-child { text-align: left; font-weight: 600; color: #2d3436; font-size: 13px; }
+
+  /* ── Colour classes ──────────────────────────────────────────────────── */
   .positive { color: #22c55e; }
   .negative { color: #ef4444; }
-  .neutral { color: #9ca3af; }
-  .bg-pos { background: #f0fdf4; }
-  .bg-neg { background: #fef2f2; }
+  .neutral  { color: #9ca3af; }
+  .bg-pos   { background: #f0fdf4; }
+  .bg-neg   { background: #fef2f2; }
+
+  /* ── Top Movers ──────────────────────────────────────────────────────── */
   .movers-title { background: #f8f9fa; padding: 10px 20px; font-size: 13px; font-weight: 600; color: #0c2461; border-top: 1px solid #eee; }
-  .movers-grid { display: flex; gap: 16px; padding: 12px 20px; flex-wrap: wrap; }
-  .movers-col { flex: 1; min-width: 180px; }
+  .movers-grid  { display: flex; gap: 16px; padding: 12px 20px; flex-wrap: wrap; }
+  .movers-col   { flex: 1; min-width: 180px; }
   .movers-col h4 { margin: 0 0 8px 0; font-size: 13px; font-weight: 700; }
-  .mover-item { font-size: 13px; padding: 3px 0; }
+  .mover-item   { font-size: 13px; padding: 3px 0; }
+
+  /* ── Footer ──────────────────────────────────────────────────────────── */
   .footer { background: #f8f9fa; padding: 16px 20px; font-size: 12px; color: #636e72; border-top: 1px solid #eee; text-align: center; }
+
+  /* ── Legend ──────────────────────────────────────────────────────────── */
+  .legend { padding: 10px 20px; font-size: 11px; color: #636e72; border-top: 1px solid #eee; background: #fafafa; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .legend-item { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+
+  /* ── Responsive: tablet (≤ 900 px) – hide 2W 3W 2Y 3Y 5Y ────────────── */
+  @media (max-width: 900px) {
+    .hide-tablet { display: none; }
+  }
+
+  /* ── Responsive: mobile (≤ 600 px) – hide everything except core ────── */
   @media (max-width: 600px) {
     body { padding: 8px; }
     .container { border-radius: 8px; }
     .header { padding: 20px 16px; }
-    .header h1 { font-size: 20px; }
+    .header h1 { font-size: 18px; }
     .market-table { font-size: 11px; }
-    .market-table th, .market-table td { padding: 6px 4px; }
-    .section-title { padding: 10px 16px; font-size: 14px; }
+    .market-table th, .market-table td { padding: 5px 4px; }
+    .section-title { padding: 10px 16px; font-size: 13px; }
+    /* On mobile show: Market Price 1D 1W 1Y Trend */
     .hide-mobile { display: none; }
+    .legend { display: none; }
   }
 </style>
 </head>
@@ -54,12 +78,18 @@
         <th>Market</th>
         <th>Price</th>
         <th>1D</th>
+        <!-- Short-term: 1W always, 2W/3W hide on tablet & mobile -->
         <th>1W</th>
+        <th class="hide-tablet hide-mobile">2W</th>
+        <th class="hide-tablet hide-mobile">3W</th>
+        <!-- Medium-term: hide on mobile -->
         <th class="hide-mobile">1M</th>
         <th class="hide-mobile">3M</th>
         <th class="hide-mobile">6M</th>
+        <!-- Long-term: 1Y always, 2Y/3Y hide on tablet & mobile, 5Y hide mobile -->
         <th>1Y</th>
-        <th class="hide-mobile">2Y</th>
+        <th class="hide-tablet hide-mobile">2Y</th>
+        <th class="hide-tablet hide-mobile">3Y</th>
         <th class="hide-mobile">5Y</th>
         <th>Trend</th>
       </tr>
@@ -70,15 +100,20 @@
         <td>{{.Name}}</td>
         <td>{{.Price}}</td>
         <td class="{{if gt .ChangePct 0.0}}bg-pos positive{{else if lt .ChangePct 0.0}}bg-neg negative{{else}}neutral{{end}}">{{.ChangePctStr}} {{.ChangeArrow}}</td>
-        {{range $i, $h := .Historical}}{{if eq $i 0}}<td class="{{$h.Class}}">{{$h.Value}}</td>
-        {{else if eq $i 1}}<td class="{{$h.Class}} hide-mobile">{{$h.Value}}</td>
-        {{else if eq $i 2}}<td class="{{$h.Class}} hide-mobile">{{$h.Value}}</td>
-        {{else if eq $i 3}}<td class="{{$h.Class}} hide-mobile">{{$h.Value}}</td>
-        {{else if eq $i 4}}<td class="{{$h.Class}}">{{$h.Value}}</td>
-        {{else if eq $i 5}}<td class="{{$h.Class}} hide-mobile">{{$h.Value}}</td>
-        {{else if eq $i 6}}<td class="{{$h.Class}} hide-mobile">{{$h.Value}}</td>
-        {{end}}{{end}}
-        <td>{{trendArrow .TrendPct}}</td>
+        {{range $i, $h := .Historical}}
+          {{if eq $i 0}}<td class="{{$h.Class}}">{{$h.Value}}</td>
+          {{else if eq $i 1}}<td class="{{$h.Class}} hide-tablet hide-mobile">{{$h.Value}}</td>
+          {{else if eq $i 2}}<td class="{{$h.Class}} hide-tablet hide-mobile">{{$h.Value}}</td>
+          {{else if eq $i 3}}<td class="{{$h.Class}} hide-mobile">{{$h.Value}}</td>
+          {{else if eq $i 4}}<td class="{{$h.Class}} hide-mobile">{{$h.Value}}</td>
+          {{else if eq $i 5}}<td class="{{$h.Class}} hide-mobile">{{$h.Value}}</td>
+          {{else if eq $i 6}}<td class="{{$h.Class}}">{{$h.Value}}</td>
+          {{else if eq $i 7}}<td class="{{$h.Class}} hide-tablet hide-mobile">{{$h.Value}}</td>
+          {{else if eq $i 8}}<td class="{{$h.Class}} hide-tablet hide-mobile">{{$h.Value}}</td>
+          {{else if eq $i 9}}<td class="{{$h.Class}} hide-mobile">{{$h.Value}}</td>
+          {{end}}
+        {{end}}
+        <td>{{trendArrow .TrendLevel .IsOpportunity}}</td>
       </tr>
       {{end}}
     </tbody>
@@ -101,6 +136,19 @@
   </div>
   {{end}}
   {{end}}
+
+  <!-- Legend -->
+  <div class="legend">
+    <strong style="color:#2d3436">Trend:</strong>
+    <span class="legend-item"><span style="color:#15803d;font-weight:700">▲▲▲</span> Very Strong Buy</span>
+    <span class="legend-item"><span style="color:#22c55e;font-weight:700">▲▲</span> Strong Uptrend</span>
+    <span class="legend-item"><span style="color:#4ade80;font-weight:700">▲</span> Mild Uptrend</span>
+    <span class="legend-item"><span style="color:#9ca3af;font-weight:700">━</span> Neutral</span>
+    <span class="legend-item"><span style="color:#f87171;font-weight:700">▼</span> Mild Downtrend</span>
+    <span class="legend-item"><span style="color:#ef4444;font-weight:700">▼▼</span> Strong Downtrend</span>
+    <span class="legend-item"><span style="color:#b91c1c;font-weight:700">▼▼▼</span> Long-term Lagger</span>
+    <span class="legend-item">🟢 Buy Opportunity</span>
+  </div>
 
   <div class="footer">
     Generated: {{.Generated}} | Powered by Claude Skills - Market Overview

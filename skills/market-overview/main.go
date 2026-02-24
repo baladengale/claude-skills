@@ -86,6 +86,7 @@ type YFQuote struct {
 	DividendYield          float64 `json:"trailingAnnualDividendYield"`
 	PriceToBook            float64 `json:"priceToBook"`
 	Currency               string  `json:"currency"`
+	AverageAnalystRating   string  `json:"averageAnalystRating"`
 }
 
 type YFSummaryResponse struct {
@@ -227,7 +228,9 @@ type HTMLRow struct {
 	ChangePct      float64
 	ChangePctStr   string
 	ChangeArrow    string
-	TrendPct       float64 // effective period: 1D if non-zero, else 1W/1M/3M
+	TrendPct       float64 // kept for backward compat
+	TrendLevel     int     // -3 (long lagger) … +3 (very strong buy)
+	IsOpportunity  bool    // buy opportunity: fundamentally strong, short-term corrected
 	Historical     []HTMLHistCell
 	Week52         string
 	PETrailing     string
@@ -272,9 +275,10 @@ type HistPeriod struct {
 }
 
 var historicalPeriods = []HistPeriod{
-	{5, "1W"}, {21, "1M"}, {63, "3M"}, {126, "6M"},
-	{252, "1Y"}, {504, "2Y"}, {1260, "5Y"},
+	{5, "1W"}, {10, "2W"}, {15, "3W"}, {21, "1M"}, {63, "3M"}, {126, "6M"},
+	{252, "1Y"}, {504, "2Y"}, {756, "3Y"}, {1260, "5Y"},
 }
+// historicalPeriods indices: 0=1W 1=2W 2=3W 3=1M 4=3M 5=6M 6=1Y 7=2Y 8=3Y 9=5Y
 
 var detailView = []SectionConfig{
 	{Name: "US Markets", Tickers: []TickerConfig{
@@ -474,8 +478,15 @@ func runMarketOverview(view []SectionConfig, viewName string, showMovers bool, c
 	charts := fetchChartsConcurrent(allSymbols)
 	log.Printf("Got chart data for %d symbols", len(charts))
 
+	// Fetch batch quotes for fundamental data (PE, analyst rating, 52W range)
+	quotes, qErr := fetchQuotes(allSymbols)
+	if qErr != nil {
+		log.Printf("WARN: quote fetch failed: %v", qErr)
+		quotes = make(map[string]YFQuote)
+	}
+
 	// Build results for the combined view (includes portfolio symbols)
-	results := buildMarketResults(charts, emailView, showMovers)
+	results := buildMarketResults(charts, quotes, emailView, showMovers)
 
 	// Terminal output uses original view only
 	if !emailOnly {
@@ -671,7 +682,7 @@ func collectSymbols(view []SectionConfig, includeMovers bool) []string {
 	return symbols
 }
 
-func buildMarketResults(charts map[string]*ChartData, view []SectionConfig, includeMovers bool) map[string]*MarketResult {
+func buildMarketResults(charts map[string]*ChartData, quotes map[string]YFQuote, view []SectionConfig, includeMovers bool) map[string]*MarketResult {
 	results := make(map[string]*MarketResult)
 
 	process := func(symbol, name string) {
@@ -731,6 +742,14 @@ func buildMarketResults(charts map[string]*ChartData, view []SectionConfig, incl
 					}
 				}
 			}
+		}
+		// Merge fundamental data from batch quote (available for stocks)
+		if q, ok := quotes[symbol]; ok {
+			mr.Week52High = q.FiftyTwoWeekHigh
+			mr.Week52Low = q.FiftyTwoWeekLow
+			mr.PETrailing = q.TrailingPE
+			mr.PEForward = q.ForwardPE
+			mr.Recommendation = parseAnalystRating(q.AverageAnalystRating)
 		}
 		results[symbol] = mr
 	}
@@ -880,7 +899,7 @@ func printMarketOverview(results map[string]*MarketResult, view []SectionConfig,
 		viewName, now.Format("Monday, 02 Jan 2006 15:04 SGT"), ansiReset)
 	fmt.Println()
 
-	periods := []string{"1W", "1M", "3M", "6M", "1Y", "2Y", "5Y"}
+	periods := []string{"1W", "2W", "3W", "1M", "3M", "6M", "1Y", "2Y", "3Y", "5Y"}
 
 	for _, sec := range view {
 		fmt.Printf("%s%s=== %s ===%s\n", ansiBold, ansiYellow, sec.Name, ansiReset)
@@ -889,7 +908,7 @@ func printMarketOverview(results map[string]*MarketResult, view []SectionConfig,
 			fmt.Printf(" %7s", p)
 		}
 		fmt.Println()
-		fmt.Println(strings.Repeat("─", 90))
+		fmt.Println(strings.Repeat("─", 114))
 
 		for _, t := range sec.Tickers {
 			mr, ok := results[t.Symbol]
@@ -1299,13 +1318,16 @@ func renderMarketHTML(results map[string]*MarketResult, view []SectionConfig, vi
 			if !ok {
 				continue
 			}
+			trendLevel, isOpp := computeTrendLevel(mr)
 			row := HTMLRow{
-				Name:         mr.Name,
-				Price:        fmtPrice(mr.Price),
-				ChangePct:    mr.ChangePct,
-				ChangePctStr: fmt.Sprintf("%+.1f%%", mr.ChangePct),
-				ChangeArrow:  changeArrow(mr.ChangePct),
-				TrendPct:     effectiveMoverPct(mr),
+				Name:          mr.Name,
+				Price:         fmtPrice(mr.Price),
+				ChangePct:     mr.ChangePct,
+				ChangePctStr:  fmt.Sprintf("%+.1f%%", mr.ChangePct),
+				ChangeArrow:   changeArrow(mr.ChangePct),
+				TrendPct:      effectiveMoverPct(mr),
+				TrendLevel:    trendLevel,
+				IsOpportunity: isOpp,
 			}
 			if mr.Week52High > 0 {
 				row.Week52 = fmt.Sprintf("%.0f-%.0f", mr.Week52Low, mr.Week52High)
@@ -1371,7 +1393,7 @@ func renderMarketHTML(results map[string]*MarketResult, view []SectionConfig, vi
 
 	funcMap := template.FuncMap{
 		"colorClass": htmlColorClass,
-		"trendArrow": htmlTrendArrow,
+		"trendArrow": htmlTrendArrow, // func(level int, isOpportunity bool) template.HTML
 	}
 	tmpl, err := template.New("market").Funcs(funcMap).Parse(embeddedTemplate)
 	if err != nil {
@@ -1453,6 +1475,140 @@ func renderStockDetailHTML(q YFQuote, summary *YFSummaryResult, now time.Time) s
 	return buf.String()
 }
 
+// parseAnalystRating converts Yahoo Finance's "2.1 - Buy" string to a lowercase key.
+func parseAnalystRating(rating string) string {
+	if rating == "" {
+		return ""
+	}
+	parts := strings.SplitN(rating, " - ", 2)
+	if len(parts) == 2 {
+		return strings.ToLower(strings.TrimSpace(parts[1]))
+	}
+	return strings.ToLower(strings.TrimSpace(rating))
+}
+
+// clampF clamps v to [-max, max].
+func clampF(v, max float64) float64 {
+	if v > max {
+		return max
+	}
+	if v < -max {
+		return -max
+	}
+	return v
+}
+
+// computeTrendLevel produces a signal in [-3, +3] and an opportunity flag.
+//
+//	+3  Very Strong Buy  – momentum excellent across all horizons + strong fundamentals
+//	+2  Strong Uptrend
+//	+1  Mild Uptrend
+//	 0  Neutral
+//	-1  Mild Downtrend
+//	-2  Strong Downtrend
+//	-3  Long-term Lagger – sustained weakness across all horizons
+//
+// Opportunity (🟢): stock has been short-term corrected but long-term trend and
+// fundamentals remain intact – a potential entry point.
+func computeTrendLevel(mr *MarketResult) (level int, isOpportunity bool) {
+	var score float64
+
+	// ── Momentum ──────────────────────────────────────────────────────────────
+	// 1-day change (weight 0.4)
+	score += clampF(mr.ChangePct, 5) * 0.4
+
+	// Short-term: 1W, 2W, 3W (weight 0.3 each)
+	for _, p := range []string{"1W", "2W", "3W"} {
+		if v, ok := mr.Historical[p]; ok {
+			score += clampF(v, 10) * 0.3
+		}
+	}
+
+	// Medium-term: 1M, 3M, 6M (weight 0.5 each)
+	for _, p := range []string{"1M", "3M", "6M"} {
+		if v, ok := mr.Historical[p]; ok {
+			score += clampF(v, 20) * 0.5
+		}
+	}
+
+	// Long-term: 1Y, 2Y, 3Y, 5Y (weight 0.7 each)
+	for _, p := range []string{"1Y", "2Y", "3Y", "5Y"} {
+		if v, ok := mr.Historical[p]; ok {
+			score += clampF(v, 50) * 0.7
+		}
+	}
+
+	// ── Fundamentals (stocks only) ────────────────────────────────────────────
+	if mr.PETrailing > 0 {
+		switch {
+		case mr.PETrailing < 12:
+			score += 5 // deep value
+		case mr.PETrailing < 20:
+			score += 2 // reasonable value
+		case mr.PETrailing > 50:
+			score -= 4 // expensive
+		case mr.PETrailing > 30:
+			score -= 1
+		}
+	}
+	// Improving earnings outlook: forward PE significantly below trailing
+	if mr.PEForward > 0 && mr.PETrailing > 0 && mr.PEForward < mr.PETrailing*0.85 {
+		score += 2
+	}
+
+	// ── Analyst recommendation ────────────────────────────────────────────────
+	switch mr.Recommendation {
+	case "strong_buy":
+		score += 6
+	case "buy":
+		score += 3
+	case "sell":
+		score -= 3
+	case "strong_sell":
+		score -= 6
+	}
+
+	// ── Map continuous score → discrete level ─────────────────────────────────
+	switch {
+	case score >= 15:
+		level = 3
+	case score >= 7:
+		level = 2
+	case score >= 2:
+		level = 1
+	case score <= -15:
+		level = -3
+	case score <= -7:
+		level = -2
+	case score <= -2:
+		level = -1
+	}
+
+	// ── Opportunity detection ─────────────────────────────────────────────────
+	// Short-term correction
+	shortCorrected := mr.ChangePct < -2
+	if v, ok := mr.Historical["1W"]; ok && v < -4 {
+		shortCorrected = true
+	}
+	if v, ok := mr.Historical["1M"]; ok && v < -7 {
+		shortCorrected = true
+	}
+	// Long-term positive track record
+	longPos := false
+	if v, ok := mr.Historical["1Y"]; ok && v > 15 {
+		longPos = true
+	}
+	if v, ok := mr.Historical["3Y"]; ok && v > 30 {
+		longPos = true
+	}
+	// Solid fundamentals or analyst backing
+	goodFund := (mr.PETrailing > 0 && mr.PETrailing < 25) ||
+		mr.Recommendation == "buy" || mr.Recommendation == "strong_buy"
+
+	isOpportunity = shortCorrected && longPos && goodFund
+	return
+}
+
 func htmlColorClass(val float64) string {
 	if val > 0 {
 		return "positive"
@@ -1462,23 +1618,37 @@ func htmlColorClass(val float64) string {
 	return "neutral"
 }
 
-func htmlTrendArrow(val float64) template.HTML {
-	var arrow, color string
-	switch {
-	case val > 1.5:
-		arrow, color = "▲▲", "#22c55e"
-	case val > 0:
-		arrow, color = "▲", "#22c55e"
-	case val < -1.5:
-		arrow, color = "▼▼", "#ef4444"
-	case val < 0:
-		arrow, color = "▼", "#ef4444"
-	default:
-		arrow, color = "━", "#9ca3af"
+// htmlTrendArrow renders a 7-level trend indicator or a buy-opportunity circle.
+//
+//	▲▲▲  +3  Very Strong Buy  (dark green)
+//	▲▲   +2  Strong Uptrend   (medium green)
+//	▲    +1  Mild Uptrend     (light green)
+//	━     0  Neutral          (grey)
+//	▼    -1  Mild Downtrend   (light red)
+//	▼▼   -2  Strong Downtrend (medium red)
+//	▼▼▼  -3  Long-term Lagger (dark red)
+//	🟢       Buy Opportunity  (corrected short-term, strong fundamentals/long-term)
+func htmlTrendArrow(level int, isOpportunity bool) template.HTML {
+	if isOpportunity {
+		return template.HTML(`<span style="font-size:15px" title="Buy Opportunity – short-term correction on fundamentally strong stock">🟢</span>`)
+	}
+	type sig struct{ arrow, color, title string }
+	m := map[int]sig{
+		3:  {"▲▲▲", "#15803d", "Very Strong Buy"},
+		2:  {"▲▲", "#22c55e", "Strong Uptrend"},
+		1:  {"▲", "#4ade80", "Mild Uptrend"},
+		0:  {"━", "#9ca3af", "Neutral"},
+		-1: {"▼", "#f87171", "Mild Downtrend"},
+		-2: {"▼▼", "#ef4444", "Strong Downtrend"},
+		-3: {"▼▼▼", "#b91c1c", "Long-term Lagger"},
+	}
+	s, ok := m[level]
+	if !ok {
+		s = m[0]
 	}
 	return template.HTML(fmt.Sprintf(
-		`<span style="font-size:14px;font-weight:700;color:%s">%s</span>`,
-		color, arrow))
+		`<span style="font-size:13px;font-weight:700;color:%s" title="%s">%s</span>`,
+		s.color, s.title, s.arrow))
 }
 
 // effectiveMoverPct returns the best available period for sorting/displaying movers.
