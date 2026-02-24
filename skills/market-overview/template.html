@@ -57,7 +57,9 @@
         <th>1W</th>
         <th class="hide-mobile">1M</th>
         <th class="hide-mobile">3M</th>
+        <th class="hide-mobile">6M</th>
         <th>1Y</th>
+        <th class="hide-mobile">2Y</th>
         <th class="hide-mobile">5Y</th>
         <th>Trend</th>
       </tr>
@@ -71,7 +73,9 @@
         {{range $i, $h := .Historical}}{{if eq $i 0}}<td class="{{$h.Class}}">{{$h.Value}}</td>
         {{else if eq $i 1}}<td class="{{$h.Class}} hide-mobile">{{$h.Value}}</td>
         {{else if eq $i 2}}<td class="{{$h.Class}} hide-mobile">{{$h.Value}}</td>
+        {{else if eq $i 3}}<td class="{{$h.Class}} hide-mobile">{{$h.Value}}</td>
         {{else if eq $i 4}}<td class="{{$h.Class}}">{{$h.Value}}</td>
+        {{else if eq $i 5}}<td class="{{$h.Class}} hide-mobile">{{$h.Value}}</td>
         {{else if eq $i 6}}<td class="{{$h.Class}} hide-mobile">{{$h.Value}}</td>
         {{end}}{{end}}
         <td>{{trendArrow .TrendPct}}</td>
