@@ -33,7 +33,7 @@ jobs:
             "windows amd64"
           )
 
-          for SKILL in market-overview tech-intel; do
+          for SKILL in market-overview tech-intel k8s-doctor sre-intel; do
             cd skills/$SKILL
             for PLATFORM in "${PLATFORMS[@]}"; do
               GOOS=$(echo $PLATFORM | awk '{print $1}')
@@ -70,6 +70,14 @@ jobs:
             | `tech-intel-linux-arm64` | Linux ARM64 |
             | `tech-intel-darwin-arm64` | macOS Apple Silicon |
             | `tech-intel-windows-amd64.exe` | Windows x86-64 |
+            | `k8s-doctor-linux-amd64` | Linux x86-64 |
+            | `k8s-doctor-linux-arm64` | Linux ARM64 |
+            | `k8s-doctor-darwin-arm64` | macOS Apple Silicon |
+            | `k8s-doctor-windows-amd64.exe` | Windows x86-64 |
+            | `sre-intel-linux-amd64` | Linux x86-64 |
+            | `sre-intel-linux-arm64` | Linux ARM64 |
+            | `sre-intel-darwin-arm64` | macOS Apple Silicon |
+            | `sre-intel-windows-amd64.exe` | Windows x86-64 |
 
             ## .env setup
 
@@ -78,4 +86,6 @@ jobs:
             GMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
             MARKET_RECIPIENTS=you@gmail.com
             NEWSLETTER_RECIPIENTS=you@gmail.com
+            K8S_RECIPIENTS=you@gmail.com
+            SRE_RECIPIENTS=you@gmail.com
             ```
