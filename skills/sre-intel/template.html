@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SRE Intel Report</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin:0;padding:20px;background:#0f0f1a;color:#e2e8f0}
+  .wrap{max-width:1020px;margin:0 auto}
+  .hdr{background:linear-gradient(135deg,#1a2744,#0f1a2e);padding:24px;border-radius:12px;margin-bottom:18px;border:1px solid #2d3f6a}
+  .hdr h1{margin:0 0 6px;font-size:22px;color:#76a9fa}
+  .hdr p{margin:3px 0;color:#94a3b8;font-size:13px}
+  .mets{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap}
+  .met{background:#1a2535;padding:10px 14px;border-radius:8px;text-align:center;min-width:60px}
+  .mv{font-size:18px;font-weight:700}
+  .ml{font-size:11px;color:#718096;margin-top:3px}
+  .sec{background:#1a2535;border-radius:10px;margin-bottom:14px;overflow:hidden;border:1px solid #2d3748}
+  .sh{background:#1e2d42;padding:11px 16px;font-weight:600;font-size:13px;color:#90cdf4;border-bottom:1px solid #2d3748}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{background:#1e2d42;padding:9px 12px;text-align:left;color:#718096;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+  td{padding:8px 12px;border-bottom:1px solid #2d3748;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:#1e2d42}
+  .b{padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600;display:inline-block;margin:1px 2px}
+  .bc{background:#4a1e28;color:#fc8181}
+  .bw{background:#4a3728;color:#f6ad55}
+  .bg{background:#1a4731;color:#68d391}
+  .bi{background:#1a2a4a;color:#63b3ed}
+  .empty{padding:22px;text-align:center;color:#4a5568;font-size:14px}
+  .ft{text-align:center;padding:14px;color:#4a5568;font-size:11px;margin-top:8px}
+  .pct-bar{height:6px;border-radius:3px;background:#2d3748;overflow:hidden;margin-top:4px}
+  .pct-fill{height:100%;border-radius:3px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <h1>📊 SRE Intel — Observability Report</h1>
+    <p>Prometheus: <strong>{{.PrometheusURL}}</strong> · Alertmanager: <strong>{{.AlertmanagerURL}}</strong></p>
+    <p>Range: {{.Range}} · SLO Target: {{.SLOTarget}}% · Generated: {{.GeneratedAt}}</p>
+    <div class="mets">
+      <div class="met"><div class="mv" style="color:#fc8181">{{.CriticalAlerts}}</div><div class="ml">Critical Alerts</div></div>
+      <div class="met"><div class="mv" style="color:#f6ad55">{{.WarningAlerts}}</div><div class="ml">Warning Alerts</div></div>
+      <div class="met"><div class="mv">{{.TotalServices}}</div><div class="ml">Services</div></div>
+      <div class="met"><div class="mv" style="color:#68d391">{{.HealthyServices}}</div><div class="ml">Healthy</div></div>
+      <div class="met"><div class="mv" style="color:#fc8181">{{.DegradedServices}}</div><div class="ml">Degraded</div></div>
+    </div>
+  </div>
+
+  {{if .FiringAlerts}}
+  <div class="sec">
+    <div class="sh">Firing Alerts ({{len .FiringAlerts}})</div>
+    <table>
+      <tr><th>Alert</th><th>Severity</th><th>State</th><th>Summary</th><th>Since</th></tr>
+      {{range .FiringAlerts}}
+      <tr>
+        <td style="font-family:monospace;font-size:12px">{{.Name}}</td>
+        <td>{{if eq .Severity "critical"}}<span class="b bc">critical</span>{{else if eq .Severity "warning"}}<span class="b bw">warning</span>{{else}}<span class="b bi">{{.Severity}}</span>{{end}}</td>
+        <td><span class="b bw">{{.State}}</span></td>
+        <td style="color:#94a3b8">{{.Summary}}</td>
+        <td style="font-size:12px;color:#718096">{{.StartsAt}}</td>
+      </tr>
+      {{end}}
+    </table>
+  </div>
+  {{else}}
+  <div class="sec"><div class="empty">✓ No firing alerts</div></div>
+  {{end}}
+
+  {{if .Services}}
+  <div class="sec">
+    <div class="sh">Service SLI / SLO Dashboard ({{.TotalServices}} services)</div>
+    <table>
+      <tr><th>Service</th><th>Error Rate</th><th>Req/s</th><th>P50</th><th>P95</th><th>P99</th><th>30d Avail</th><th>Error Budget</th><th>Burn Rate</th></tr>
+      {{range .Services}}
+      <tr>
+        <td style="font-family:monospace;font-size:12px">{{.Job}}</td>
+        <td>{{if gt .ErrorRate 0.05}}<span class="b bc">{{mul100 .ErrorRate}}%</span>{{else if gt .ErrorRate 0.01}}<span class="b bw">{{mul100 .ErrorRate}}%</span>{{else}}<span class="b bg">{{mul100 .ErrorRate}}%</span>{{end}}</td>
+        <td>{{printf "%.1f" .RequestRate}}</td>
+        <td>{{printf "%.0fms" .LatencyP50}}</td>
+        <td>{{printf "%.0fms" .LatencyP95}}</td>
+        <td>{{printf "%.0fms" .LatencyP99}}</td>
+        <td>{{if ge .Availability 0.999}}<span class="b bg">{{mul100 .Availability}}%</span>{{else if ge .Availability 0.99}}<span class="b bw">{{mul100 .Availability}}%</span>{{else}}<span class="b bc">{{mul100 .Availability}}%</span>{{end}}</td>
+        <td>{{printf "%.1f" .ErrorBudget}}%</td>
+        <td>{{if eq .BurnRate "critical"}}<span class="b bc">{{.BurnRate}}</span>{{else if eq .BurnRate "fast"}}<span class="b bw">{{.BurnRate}}</span>{{else}}<span class="b bg">{{.BurnRate}}</span>{{end}}</td>
+      </tr>
+      {{end}}
+    </table>
+  </div>
+  {{else}}
+  <div class="sec"><div class="empty">No service metrics found — check PROMETHEUS_URL and http_requests_total metrics</div></div>
+  {{end}}
+
+  <div class="ft">Generated by SRE Intel · Claude Skills · {{.GeneratedAt}}</div>
+</div>
+</body>
+</html>
