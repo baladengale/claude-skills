@@ -1,10 +1,12 @@
-# Claude Skills — Market Intelligence Tools
+# Claude Skills — Market Intelligence & DevOps/SRE Troubleshooting
 
-Two Go-based skills for Claude Code that deliver financial market data and curated tech news via terminal output and HTML email.
+Skills for Claude Code: financial market data tools and a comprehensive DevOps/SRE troubleshooting playbook for Kubernetes, service meshes, and platform engineering.
 
 ---
 
 ## Skills Overview
+
+### Market Intelligence (Go binaries)
 
 | Skill | Binary | Purpose |
 |-------|--------|---------|
@@ -12,6 +14,25 @@ Two Go-based skills for Claude Code that deliver financial market data and curat
 | [tech-intel](skills/tech-intel/) | `tech-intel` | Daily tech + market news newsletter from 12 RSS feeds |
 
 Both are self-contained Go programs with **zero external dependencies** — only the Go standard library is used.
+
+### Kubernetes & DevOps Troubleshooting (Bash + kubectl)
+
+Bash-based diagnostic playbooks — no Go/Python required. Each skill is a self-contained troubleshooting runbook with `kubectl` one-liners, root-cause patterns, and remediation steps. Inspired by open-source community tooling (netshoot, robusta, istio-by-example, cert-manager, KEDA, linkerd, helm-diff, kube-bench, etc.).
+
+| Skill | Script | Purpose |
+|-------|--------|---------|
+| [k8s-doctor](skills/k8s-doctor/) | `diagnose.sh` | Cluster health score — nodes, pods, deployments, warning events |
+| [k8s-pod-debug](skills/k8s-pod-debug/) | `diagnose.sh` | CrashLoopBackOff, OOMKilled, ImagePullBackOff, Pending, Evicted pods |
+| [k8s-network-debug](skills/k8s-network-debug/) | `diagnose.sh` | DNS failures, Service connectivity, NetworkPolicy, CNI issues |
+| [k8s-node-debug](skills/k8s-node-debug/) | `diagnose.sh` | NotReady nodes, MemoryPressure, DiskPressure, drain/cordon |
+| [k8s-storage-debug](skills/k8s-storage-debug/) | `diagnose.sh` | PVC Pending, volume mount errors, StorageClass, CSI drivers |
+| [k8s-rbac-audit](skills/k8s-rbac-audit/) | `diagnose.sh` | Permission denied, ServiceAccount bindings, wildcard RBAC audit |
+| [k8s-hpa-debug](skills/k8s-hpa-debug/) | `diagnose.sh` | HPA not scaling, metrics-server, KEDA ScaledObjects, VPA |
+| [k8s-ingress-debug](skills/k8s-ingress-debug/) | `diagnose.sh` | Ingress 404/502, nginx-ingress, cert-manager TLS, LoadBalancer |
+| [istio-debug](skills/istio-debug/) | `diagnose.sh` | Envoy proxy, mTLS, VirtualService, DestinationRule, circuit breakers |
+| [linkerd-debug](skills/linkerd-debug/) | `diagnose.sh` | Linkerd health check, proxy injection, mTLS, golden metrics, tap |
+| [helm-debug](skills/helm-debug/) | `diagnose.sh` | Failed releases, pending-install, rollback, diff, hook failures |
+| [sre-intel](skills/sre-intel/) | `sre-intel` (Go) | Prometheus SLI/SLO, Alertmanager alerts, error budget burn rate |
 
 ---
 
@@ -270,7 +291,7 @@ If `GMAIL_APP_PASSWORD` is not set, the rendered HTML is saved to the current di
 
 ## Claude Code Integration
 
-These skills are activated by Claude Code when you ask about the topics listed in each `SKILL.md`. Claude will build the binary if needed and run the appropriate command.
+Skills are activated by Claude Code when you ask about the topics listed in each `SKILL.md`. Go-based skills are compiled on first run; bash skills run directly with `kubectl` and mesh CLIs.
 
 ### Trigger Phrases
 
@@ -284,6 +305,53 @@ These skills are activated by Claude Code when you ask about the topics listed i
 - "send tech digest", "tech newsletter", "market pulse"
 - "tech news", "daily newsletter"
 - "RSS feeds", "news aggregation"
+
+**k8s-pod-debug:**
+- "pod is CrashLoopBackOff", "OOMKilled", "ImagePullBackOff"
+- "pod not starting", "pod pending", "pod evicted"
+- "container keeps restarting", "init container failing"
+
+**k8s-network-debug:**
+- "DNS not resolving in pod", "service not reachable"
+- "NetworkPolicy blocking traffic", "pod can't connect"
+- "CoreDNS issues", "netshoot debugging"
+
+**k8s-node-debug:**
+- "node NotReady", "node MemoryPressure", "DiskPressure"
+- "drain node", "cordon node", "kubelet crashed"
+
+**k8s-storage-debug:**
+- "PVC pending", "PVC not binding", "volume mount error"
+- "StorageClass not found", "CSI driver issue"
+
+**k8s-rbac-audit:**
+- "permission denied", "forbidden 403", "RBAC error"
+- "ServiceAccount permissions", "who can do what"
+
+**k8s-hpa-debug:**
+- "HPA not scaling", "unknown metrics in HPA"
+- "KEDA not triggering", "metrics-server missing"
+
+**k8s-ingress-debug:**
+- "ingress 404", "ingress 502/503", "ingress not routing"
+- "cert-manager certificate pending", "TLS not working"
+- "LoadBalancer pending IP"
+
+**istio-debug:**
+- "Istio proxy not injected", "mTLS failing", "503 UC"
+- "VirtualService not routing", "Envoy config", "istioctl"
+
+**linkerd-debug:**
+- "Linkerd check failed", "Linkerd proxy missing"
+- "linkerd tap", "golden metrics", "Linkerd mTLS"
+
+**helm-debug:**
+- "helm upgrade failed", "release pending-install"
+- "helm rollback", "helm diff", "hook failed"
+
+**sre-intel:**
+- "SLO status", "error budget burn", "Prometheus metrics"
+- "Alertmanager alerts", "firing alerts", "SLI dashboard"
 
 ### SKILL.md Files
 
@@ -310,20 +378,69 @@ The `requires.bins` field tells Claude Code that `go` must be available to build
 claude-skills/
 ├── README.md
 └── skills/
+    │
+    ├── ── Market Intelligence (Go binaries) ──────────────────────────────────
     ├── market-overview/
     │   ├── SKILL.md          # Claude Code skill descriptor
     │   ├── main.go           # ~1,576 lines — all logic, no dependencies
     │   ├── template.html     # Embedded HTML email template
-    │   ├── go.mod            # module github.com/baladengale/claude-skills-market-overview
-    │   ├── Makefile          # build / run / cross-compile targets
-    │   └── market-overview   # Pre-built Linux amd64 binary
-    └── tech-intel/
-        ├── SKILL.md          # Claude Code skill descriptor
-        ├── main.go           # ~589 lines — all logic, no dependencies
-        ├── template.html     # Embedded HTML email template
-        ├── go.mod            # module github.com/baladengale/claude-skills-tech-intel
-        ├── Makefile          # build / run / cross-compile targets
-        └── tech-intel        # Pre-built Linux amd64 binary
+    │   ├── go.mod
+    │   └── Makefile
+    ├── tech-intel/
+    │   ├── SKILL.md
+    │   ├── main.go           # ~589 lines
+    │   ├── template.html
+    │   ├── go.mod
+    │   └── Makefile
+    ├── sre-intel/
+    │   ├── SKILL.md          # Prometheus/Alertmanager SLO/SLI
+    │   ├── main.go
+    │   ├── template.html
+    │   ├── go.mod
+    │   └── Makefile
+    │
+    ├── ── Kubernetes Troubleshooting (Bash + kubectl) ─────────────────────────
+    ├── k8s-doctor/
+    │   ├── SKILL.md          # Cluster health score (0-100)
+    │   └── Makefile          # Go binary wrapper
+    ├── k8s-pod-debug/
+    │   ├── SKILL.md          # CrashLoopBackOff, OOMKilled, ImagePullBackOff
+    │   ├── diagnose.sh       # kubectl-based diagnostics
+    │   └── Makefile
+    ├── k8s-network-debug/
+    │   ├── SKILL.md          # DNS, NetworkPolicy, CNI, Services
+    │   ├── diagnose.sh
+    │   └── Makefile
+    ├── k8s-node-debug/
+    │   ├── SKILL.md          # NotReady, pressure conditions, drain/cordon
+    │   ├── diagnose.sh
+    │   └── Makefile
+    ├── k8s-storage-debug/
+    │   ├── SKILL.md          # PVC/PV/StorageClass/CSI troubleshooting
+    │   ├── diagnose.sh
+    │   └── Makefile
+    ├── k8s-rbac-audit/
+    │   ├── SKILL.md          # Permission denied, RBAC audit, least privilege
+    │   ├── diagnose.sh
+    │   └── Makefile
+    ├── k8s-hpa-debug/
+    │   ├── SKILL.md          # HPA, metrics-server, KEDA, VPA
+    │   ├── diagnose.sh
+    │   └── Makefile
+    ├── k8s-ingress-debug/
+    │   ├── SKILL.md          # nginx-ingress, cert-manager, LB, external-dns
+    │   ├── diagnose.sh
+    │   └── Makefile
+    │
+    ├── ── Service Mesh (Bash + istioctl/linkerd) ──────────────────────────────
+    ├── istio-debug/
+    │   ├── SKILL.md          # Envoy, mTLS, VirtualService, DestinationRule
+    │   ├── diagnose.sh
+    │   └── Makefile
+    └── linkerd-debug/
+        ├── SKILL.md          # Linkerd health, proxy, tap, golden metrics
+        ├── diagnose.sh
+        └── Makefile
 ```
 
 ---
@@ -357,4 +474,71 @@ cd skills/market-overview && ./market-overview --no-email
 
 # 5. Run tech intel (saves HTML to current dir if email not configured)
 cd ../tech-intel && ./tech-intel
+```
+
+---
+
+## Quick Start: Kubernetes Troubleshooting Skills
+
+The DevOps/SRE skills require only `kubectl` configured to point at your cluster (and `istioctl`/`linkerd` for mesh skills).
+
+```bash
+# Pod debugging — all namespaces
+bash skills/k8s-pod-debug/diagnose.sh -a
+
+# Deep-dive into a specific crashing pod
+bash skills/k8s-pod-debug/diagnose.sh -n production -p my-failing-pod
+
+# Network debugging — check DNS and services in a namespace
+bash skills/k8s-network-debug/diagnose.sh -n production --dns --policy
+
+# Node health with resource allocation
+bash skills/k8s-node-debug/diagnose.sh --resources
+
+# Storage: find unbound PVCs
+bash skills/k8s-storage-debug/diagnose.sh
+
+# RBAC audit: who has cluster-admin?
+bash skills/k8s-rbac-audit/diagnose.sh --cluster-audit
+
+# HPA: check autoscaling status + metrics-server
+bash skills/k8s-hpa-debug/diagnose.sh --metrics-server
+
+# Ingress: check all ingress + cert-manager
+bash skills/k8s-ingress-debug/diagnose.sh --certs
+
+# Istio: full mesh analysis
+bash skills/istio-debug/diagnose.sh --control-plane --proxy-status --analyze
+
+# Linkerd: full health check
+bash skills/linkerd-debug/diagnose.sh --check
+
+# Helm: list failed/pending releases
+bash skills/helm-debug/diagnose.sh
+```
+
+### Required Tools
+
+| Skill Group | Required CLIs |
+|-------------|--------------|
+| All k8s-* skills | `kubectl` configured to target cluster |
+| `istio-debug` | `kubectl` + `istioctl` |
+| `linkerd-debug` | `kubectl` + `linkerd` CLI |
+| `helm-debug` | `kubectl` + `helm` v3 |
+| `sre-intel` | `go` 1.22+ (compiled binary) |
+
+### Tool Installation
+
+```bash
+# kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+# istioctl
+curl -L https://istio.io/downloadIstio | sh -
+
+# linkerd
+curl -fsL https://run.linkerd.io/install | sh
+
+# helm
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 ```
