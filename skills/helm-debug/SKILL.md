@@ -27,30 +27,6 @@ Activate when the user asks about:
 - Helm secret decryption, helm-secrets, SOPS
 - Chart dependency update, helm repo update
 
-## Script Location
-
-```
-skills/helm-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# List all releases with status
-bash skills/helm-debug/diagnose.sh
-
-# Inspect specific failed release
-bash skills/helm-debug/diagnose.sh --release my-app --namespace production
-
-# Show release history
-bash skills/helm-debug/diagnose.sh --release my-app --namespace production --history
-
-# Rollback to previous version
-bash skills/helm-debug/diagnose.sh --release my-app --namespace production --rollback
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Step 1 — Check All Release Statuses

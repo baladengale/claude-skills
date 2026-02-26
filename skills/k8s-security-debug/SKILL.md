@@ -28,30 +28,6 @@ Activate when the user asks about:
 - Network policy security, zero-trust
 - Secret scanning, leaked credentials in pod
 
-## Script Location
-
-```
-skills/k8s-security-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# Security posture check (PSA, RBAC wildcards, privileged pods)
-bash skills/k8s-security-debug/diagnose.sh --posture
-
-# Check Gatekeeper constraints
-bash skills/k8s-security-debug/diagnose.sh --gatekeeper
-
-# Check Falco alerts
-bash skills/k8s-security-debug/diagnose.sh --falco
-
-# Full security audit
-bash skills/k8s-security-debug/diagnose.sh --all
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Step 1 — Security Posture Overview

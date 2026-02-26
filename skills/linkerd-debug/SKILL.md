@@ -27,30 +27,6 @@ Activate when the user asks about:
 - Linkerd policy, authorization policy
 - linkerd-jaeger, distributed tracing
 
-## Script Location
-
-```
-skills/linkerd-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# Full health check (control + data plane)
-bash skills/linkerd-debug/diagnose.sh --check
-
-# Check proxy injection status in namespace
-bash skills/linkerd-debug/diagnose.sh -n production --proxies
-
-# Live traffic tap
-bash skills/linkerd-debug/diagnose.sh -n production --tap my-deploy
-
-# Golden metrics for namespace
-bash skills/linkerd-debug/diagnose.sh -n production --metrics
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Step 1 — Control Plane Health

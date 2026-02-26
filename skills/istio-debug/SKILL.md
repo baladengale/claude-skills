@@ -27,33 +27,6 @@ Activate when the user asks about:
 - Envoy access logs, proxy-config, proxy-status
 - Kiali, Jaeger, Zipkin service mesh observability
 
-## Script Location
-
-```
-skills/istio-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# Control plane health check
-bash skills/istio-debug/diagnose.sh --control-plane
-
-# Check proxy sync status for all pods
-bash skills/istio-debug/diagnose.sh -n production --proxy-status
-
-# Debug specific pod's Envoy config
-bash skills/istio-debug/diagnose.sh -n production --pod my-pod --envoy-config
-
-# Verify mTLS between services
-bash skills/istio-debug/diagnose.sh -n production --mtls
-
-# Full mesh analysis
-bash skills/istio-debug/diagnose.sh --analyze
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Step 1 — Control Plane Health

@@ -27,30 +27,6 @@ Activate when the user asks about:
 - Calico node not ready, IPAM issues
 - WireGuard encryption, Calico encryption
 
-## Script Location
-
-```
-skills/calico-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# Calico component health
-bash skills/calico-debug/diagnose.sh --health
-
-# BGP peer status
-bash skills/calico-debug/diagnose.sh --bgp
-
-# IP pool and IPAM status
-bash skills/calico-debug/diagnose.sh --ipam
-
-# Check policies for a pod
-bash skills/calico-debug/diagnose.sh --pod my-pod -n production
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Calico Architecture

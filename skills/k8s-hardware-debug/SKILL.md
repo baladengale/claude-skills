@@ -27,30 +27,6 @@ Activate when the user asks about:
 - CPU Manager policy, cpuset cgroup
 - Accelerators: FPGA, TPU, Intel QAT
 
-## Script Location
-
-```
-skills/k8s-hardware-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# GPU node inventory and health
-bash skills/k8s-hardware-debug/diagnose.sh --gpu
-
-# NUMA and CPU topology
-bash skills/k8s-hardware-debug/diagnose.sh --numa
-
-# Hugepages configuration
-bash skills/k8s-hardware-debug/diagnose.sh --hugepages
-
-# Full hardware audit
-bash skills/k8s-hardware-debug/diagnose.sh --all
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Step 1 — Hardware Node Inventory
