@@ -27,30 +27,6 @@ Activate when the user asks about:
 - HPA flapping, rapid scale up/down
 - Resource requests too low/high
 
-## Script Location
-
-```
-skills/k8s-hpa-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# Check all HPAs in namespace
-bash skills/k8s-hpa-debug/diagnose.sh -n production
-
-# Deep-dive on specific HPA
-bash skills/k8s-hpa-debug/diagnose.sh -n production --hpa my-app-hpa
-
-# Check metrics-server
-bash skills/k8s-hpa-debug/diagnose.sh --metrics-server
-
-# Check KEDA ScaledObjects
-bash skills/k8s-hpa-debug/diagnose.sh -n production --keda
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Step 1 — HPA Status Overview

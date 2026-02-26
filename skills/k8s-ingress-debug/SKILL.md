@@ -27,30 +27,6 @@ Activate when the user asks about:
 - Ingress class not found, ingressClassName
 - Path-based routing, host-based routing not working
 
-## Script Location
-
-```
-skills/k8s-ingress-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# List all ingress resources and check status
-bash skills/k8s-ingress-debug/diagnose.sh -n production
-
-# Check specific ingress
-bash skills/k8s-ingress-debug/diagnose.sh -n production --ingress my-ingress
-
-# Check cert-manager certificates
-bash skills/k8s-ingress-debug/diagnose.sh -n production --certs
-
-# Check LoadBalancer services
-bash skills/k8s-ingress-debug/diagnose.sh --lb
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Step 1 — Ingress Overview

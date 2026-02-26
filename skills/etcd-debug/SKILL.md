@@ -27,30 +27,6 @@ Activate when the user asks about:
 - etcd TLS certificate issues
 - etcd member add/remove, cluster membership
 
-## Script Location
-
-```
-skills/etcd-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# Health check and cluster status
-bash skills/etcd-debug/diagnose.sh --health
-
-# Check performance metrics (latency, db size)
-bash skills/etcd-debug/diagnose.sh --perf
-
-# Take a snapshot backup
-bash skills/etcd-debug/diagnose.sh --backup /backup/etcd-snapshot.db
-
-# Run defragmentation
-bash skills/etcd-debug/diagnose.sh --defrag
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Architecture: What is etcd in a Kubernetes Cluster?

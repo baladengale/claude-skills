@@ -26,30 +26,6 @@ Activate when the user asks about:
 - kube-dns, CoreDNS issues, DNS 5s timeout
 - Ingress not routing, LoadBalancer not accessible
 
-## Script Location
-
-```
-skills/k8s-network-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# DNS resolution test in a namespace
-bash skills/k8s-network-debug/diagnose.sh -n production --dns
-
-# Service connectivity test
-bash skills/k8s-network-debug/diagnose.sh -n production --service my-svc
-
-# NetworkPolicy audit for a pod
-bash skills/k8s-network-debug/diagnose.sh -n production --policy --pod my-pod
-
-# Full network scan
-bash skills/k8s-network-debug/diagnose.sh -n production --all
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Step 1 — Identify Network Symptoms
