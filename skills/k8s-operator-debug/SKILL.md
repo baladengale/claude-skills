@@ -27,30 +27,6 @@ Activate when the user asks about:
 - Crossplane composition, provider issues
 - ArgoCD application controller, FluxCD kustomize-controller
 
-## Script Location
-
-```
-skills/k8s-operator-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# Audit all CRDs and operator health
-bash skills/k8s-operator-debug/diagnose.sh --all
-
-# Check specific operator deployment
-bash skills/k8s-operator-debug/diagnose.sh --operator my-operator -n my-operator-ns
-
-# Find terminating objects (finalizer deadlocks)
-bash skills/k8s-operator-debug/diagnose.sh --terminating
-
-# Check webhooks
-bash skills/k8s-operator-debug/diagnose.sh --webhooks
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### How Operators Work

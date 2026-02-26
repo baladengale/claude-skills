@@ -26,30 +26,6 @@ Activate when the user asks about:
 - Pod not ready, readiness probe failing
 - Liveness probe failing, pod health check
 
-## Script Location
-
-```
-skills/k8s-pod-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# Quick pod health scan — all namespaces
-bash skills/k8s-pod-debug/diagnose.sh
-
-# Check specific namespace
-bash skills/k8s-pod-debug/diagnose.sh -n production
-
-# Deep-dive on specific pod
-bash skills/k8s-pod-debug/diagnose.sh -p my-pod -n production
-
-# Check all namespaces
-bash skills/k8s-pod-debug/diagnose.sh -a
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Step 1 — Triage: find unhealthy pods

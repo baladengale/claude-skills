@@ -29,30 +29,6 @@ Activate when the user asks about:
 - OpenShift oauth, authentication, htpasswd
 - OpenShift MachineConfig, MachineConfigPool
 
-## Script Location
-
-```
-skills/openshift-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# Cluster operator health
-bash skills/openshift-debug/diagnose.sh --operators
-
-# SCC violations in a project
-bash skills/openshift-debug/diagnose.sh -n my-project --scc
-
-# OLM operator troubleshooting
-bash skills/openshift-debug/diagnose.sh --olm
-
-# Full cluster health snapshot
-bash skills/openshift-debug/diagnose.sh --all
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### OpenShift vs Kubernetes Key Differences

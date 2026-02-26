@@ -27,27 +27,6 @@ Activate when the user asks about:
 - Node reboot, node restart
 - Cluster autoscaler, node pool scaling
 
-## Script Location
-
-```
-skills/k8s-node-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# Cluster-wide node health summary
-bash skills/k8s-node-debug/diagnose.sh
-
-# Deep-dive on specific node
-bash skills/k8s-node-debug/diagnose.sh --node <node-name>
-
-# Show resource allocation across all nodes
-bash skills/k8s-node-debug/diagnose.sh --resources
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Step 1 — Node Status Overview

@@ -26,27 +26,6 @@ Activate when the user asks about:
 - iptables DNAT rules for ClusterIP
 - kube-proxy sync errors, endpoint updates slow
 
-## Script Location
-
-```
-skills/kube-proxy-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# kube-proxy health and mode check
-bash skills/kube-proxy-debug/diagnose.sh
-
-# Verify iptables rules for a specific service
-bash skills/kube-proxy-debug/diagnose.sh --service my-svc -n production
-
-# Check conntrack table
-bash skills/kube-proxy-debug/diagnose.sh --conntrack
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### How kube-proxy Works

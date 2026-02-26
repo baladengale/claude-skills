@@ -27,27 +27,6 @@ Activate when the user asks about:
 - Operator RBAC, controller permissions
 - RBAC for CI/CD, GitHub Actions, ArgoCD
 
-## Script Location
-
-```
-skills/k8s-rbac-audit/diagnose.sh
-```
-
-## Usage
-
-```bash
-# Audit all ClusterRoleBindings for wildcards and cluster-admin
-bash skills/k8s-rbac-audit/diagnose.sh --cluster-audit
-
-# Check what a ServiceAccount can do
-bash skills/k8s-rbac-audit/diagnose.sh -n production --sa my-service-account
-
-# Test specific permission
-bash skills/k8s-rbac-audit/diagnose.sh --can-i "get pods" -n production --as system:serviceaccount:production:my-sa
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Step 1 — Identify the Permission Error

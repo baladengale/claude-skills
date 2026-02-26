@@ -27,27 +27,6 @@ Activate when the user asks about:
 - Envoy stats, Envoy metrics
 - Envoy as standalone ingress (not Istio)
 
-## Script Location
-
-```
-skills/envoy-gateway-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# Gateway API resource status
-bash skills/envoy-gateway-debug/diagnose.sh -n production
-
-# Access Envoy admin UI for a pod
-bash skills/envoy-gateway-debug/diagnose.sh --admin --pod <envoy-pod> -n <ns>
-
-# Check Envoy Gateway control plane
-bash skills/envoy-gateway-debug/diagnose.sh --control-plane
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Envoy Gateway Architecture (Gateway API)
