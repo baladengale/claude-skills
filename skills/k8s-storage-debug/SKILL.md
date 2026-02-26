@@ -27,27 +27,6 @@ Activate when the user asks about:
 - NFS mount failing, AWS EBS not attaching
 - Volume expansion, resize PVC
 
-## Script Location
-
-```
-skills/k8s-storage-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# Check all PVC/PV status
-bash skills/k8s-storage-debug/diagnose.sh
-
-# Check specific namespace
-bash skills/k8s-storage-debug/diagnose.sh -n production
-
-# Deep-dive on specific PVC
-bash skills/k8s-storage-debug/diagnose.sh -n production --pvc my-claim
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Step 1 — Storage Status Overview

@@ -27,27 +27,6 @@ Activate when the user asks about:
 - Docker socket, dockershim (deprecated)
 - Container image layers, image garbage collection
 
-## Script Location
-
-```
-skills/container-runtime-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# Runtime health and container status on current node
-bash skills/container-runtime-debug/diagnose.sh
-
-# Image inspection and cleanup
-bash skills/container-runtime-debug/diagnose.sh --images
-
-# Specific container deep-dive
-bash skills/container-runtime-debug/diagnose.sh --container <id>
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### Architecture: Container Runtime Stack

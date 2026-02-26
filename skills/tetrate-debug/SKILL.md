@@ -27,30 +27,6 @@ Activate when the user asks about:
 - TSB sync not working, xCP sync issues
 - TSB observability, Service Graph, Topology
 
-## Script Location
-
-```
-skills/tetrate-debug/diagnose.sh
-```
-
-## Usage
-
-```bash
-# Check TSB component health
-bash skills/tetrate-debug/diagnose.sh --health
-
-# Check control plane sync
-bash skills/tetrate-debug/diagnose.sh --sync
-
-# Verify cluster onboarding
-bash skills/tetrate-debug/diagnose.sh --cluster
-
-# Full TSB status
-bash skills/tetrate-debug/diagnose.sh --all
-```
-
----
-
 ## Troubleshooting Runbook
 
 ### TSB Architecture
