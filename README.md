@@ -21,7 +21,7 @@ Bash-based diagnostic playbooks — no Go/Python required. Each skill is a self-
 
 | Skill | Script | Purpose |
 |-------|--------|---------|
-| [k8s-doctor](skills/k8s-doctor/) | `diagnose.sh` | Cluster health score — nodes, pods, deployments, warning events |
+| [k8s-doctor](skills/k8s-doctor/) | plain English runbook | Cluster health score — nodes, pods, deployments, warning events |
 | [k8s-pod-debug](skills/k8s-pod-debug/) | `diagnose.sh` | CrashLoopBackOff, OOMKilled, ImagePullBackOff, Pending, Evicted pods |
 | [k8s-network-debug](skills/k8s-network-debug/) | `diagnose.sh` | DNS failures, Service connectivity, NetworkPolicy, CNI issues |
 | [k8s-node-debug](skills/k8s-node-debug/) | `diagnose.sh` | NotReady nodes, MemoryPressure, DiskPressure, drain/cordon |
@@ -401,8 +401,7 @@ claude-skills/
     │
     ├── ── Kubernetes Troubleshooting (Bash + kubectl) ─────────────────────────
     ├── k8s-doctor/
-    │   ├── SKILL.md          # Cluster health score (0-100)
-    │   └── Makefile          # Go binary wrapper
+    │   ├── SKILL.md          # Cluster health score (0-100) — plain English runbook, no script required
     ├── k8s-pod-debug/
     │   ├── SKILL.md          # CrashLoopBackOff, OOMKilled, ImagePullBackOff
     │   ├── diagnose.sh       # kubectl-based diagnostics
@@ -482,6 +481,8 @@ cd ../tech-intel && ./tech-intel
 
 The DevOps/SRE skills require only `kubectl` configured to point at your cluster (and `istioctl`/`linkerd` for mesh skills).
 
+The `k8s-doctor` skill is a **plain English runbook** — no script or binary to run. Simply ask the agent to run a cluster health check and it will follow the SKILL.md steps using kubectl commands via MCP tools.
+
 ```bash
 # Pod debugging — all namespaces
 bash skills/k8s-pod-debug/diagnose.sh -a
@@ -521,7 +522,8 @@ bash skills/helm-debug/diagnose.sh
 
 | Skill Group | Required CLIs |
 |-------------|--------------|
-| All k8s-* skills | `kubectl` configured to target cluster |
+| `k8s-doctor` | `kubectl` configured to target cluster (no script — MCP runbook) |
+| All other k8s-* skills | `kubectl` configured to target cluster |
 | `istio-debug` | `kubectl` + `istioctl` |
 | `linkerd-debug` | `kubectl` + `linkerd` CLI |
 | `helm-debug` | `kubectl` + `helm` v3 |
