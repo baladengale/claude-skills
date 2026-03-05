@@ -12,8 +12,9 @@ Skills for Claude Code: financial market data tools and a comprehensive DevOps/S
 |-------|--------|---------|
 | [market-overview](skills/market-overview/) | `market-overview` | World markets, stocks, portfolio, dividends, earnings, financials |
 | [tech-intel](skills/tech-intel/) | `tech-intel` | Daily tech + market news newsletter from 12 RSS feeds |
+| [fundamental-trend-analysis](skills/fundamental-trend-analysis/) | SKILL.md runbook | Composite buy/sell signals combining Piotroski-style fundamentals + technical trend scoring |
 
-Both are self-contained Go programs with **zero external dependencies** — only the Go standard library is used.
+Both Go-based skills are self-contained programs with **zero external dependencies** — only the Go standard library is used. The fundamental-trend-analysis skill is a plain-language runbook (like k8s-doctor) that Claude executes using Yahoo Finance APIs.
 
 ### Kubernetes & DevOps Troubleshooting (Bash + kubectl)
 
@@ -306,6 +307,12 @@ Skills are activated by Claude Code when you ask about the topics listed in each
 - "tech news", "daily newsletter"
 - "RSS feeds", "news aggregation"
 
+**fundamental-trend-analysis:**
+- "analyze NVDA", "rate this stock", "should I buy NVDA"
+- "fundamental analysis", "stock score", "composite score"
+- "buy signal", "sell signal", "strong buy", "must buy"
+- "fundamental trend", "stock rating"
+
 **k8s-pod-debug:**
 - "pod is CrashLoopBackOff", "OOMKilled", "ImagePullBackOff"
 - "pod not starting", "pod pending", "pod evicted"
@@ -392,6 +399,8 @@ claude-skills/
     │   ├── template.html
     │   ├── go.mod
     │   └── Makefile
+    ├── fundamental-trend-analysis/
+    │   └── SKILL.md          # Composite buy/sell scoring — Piotroski + technicals runbook
     ├── sre-intel/
     │   ├── SKILL.md          # Prometheus/Alertmanager SLO/SLI
     │   ├── main.go
